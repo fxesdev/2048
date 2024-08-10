@@ -1,11 +1,25 @@
 #include "base.h"
 #include "darkt.h"
 #include "lightt.h"
+#include "dlose.h"
+#include "llose.h"
+#include "lwin.h"
+#include "dwin.h"
 //wadafuk
 
-byte get_random(byte max)
+word get_random(word max)
 {
-	return deref(0xF00C) % max;
+	return Timer0Counter % max;
+}
+
+byte get_random_tile()
+{
+	byte res = 1;
+	if(get_random(4) == 1)
+	{
+		res = 2;
+	}
+	return res;
 }
 
 void clear_buffer()
@@ -143,6 +157,7 @@ enum SPECIAL_CHARS
 	SP_RIGHT = 0x19
 };
 
+
 byte get_tile(byte x, byte y)
 {
 	byte tile = 0;
@@ -183,17 +198,19 @@ void move_tiles(byte dir)
 	byte l = 0;
 	byte m = 0;
 	byte n = 0;
+	byte fs = 0;
+	byte o = 0;
 	for(i = 0;i<16;i++)
 	{
 		deref(0xE0E0+i) = deref(0xE000+i);
 	}
 	if(dir == 1)
 	{
-		for(k=0;k<4;k++)
+		for(i=0;i<4;i++)
 		{
-			for(i=0;i<4;i++)
+			for(j=0;j<4;j++)
 			{
-				for(j=0;j<4;j++)
+				for(k=0;k<4;k++)
 				{
 					if(get_tile(i,j) == 0)
 					{
@@ -201,25 +218,26 @@ void move_tiles(byte dir)
 						set_tile(i,j+1,get_tile(i,j+2));
 						set_tile(i,j+2,get_tile(i,j+3));
 						set_tile(i,j+3,0);
-					} else if(get_tile(i,j) == get_tile(i,j+1) && n == 0) {
-						set_tile(i,j,get_tile(i,j)+1);
-						set_tile(i,j+1,get_tile(i,j+2));
-						set_tile(i,j+2,get_tile(i,j+3));
-						set_tile(i,j+3,0);
-						n = 1;
 					}
-					//draw_tiles();
 				}
-				//draw_tiles();
+			}
+			for(j=0;j<4;j++)
+			{
+				if(get_tile(i,j) == get_tile(i,j+1) && get_tile(i,j) != 0) {
+					set_tile(i,j,get_tile(i,j+1)+1);
+					set_tile(i,j+1,get_tile(i,j+2));
+					set_tile(i,j+2,get_tile(i,j+3));
+					set_tile(i,j+3,0);
+				}
 			}
 		}
 	} else if(dir == 2)
 	{
-		for(k=0;k<4;k++)
+		for(i=0;i<4;i++)
 		{
-			for(i=0;i<4;i++)
+			for(j=3;j>0;j--)
 			{
-				for(j=3;j>0;j--)
+				for(k=0;k<4;k++)
 				{
 					if(get_tile(i,j) == 0)
 					{
@@ -227,25 +245,26 @@ void move_tiles(byte dir)
 						set_tile(i,j-1,get_tile(i,j-2));
 						set_tile(i,j-2,get_tile(i,j-3));
 						set_tile(i,j-3,0);
-					} else if(get_tile(i,j) == get_tile(i,j-1) && n == 0) {
-						set_tile(i,j,get_tile(i,j)+1);
-						set_tile(i,j-1,get_tile(i,j-2));
-						set_tile(i,j-2,get_tile(i,j-3));
-						set_tile(i,j-3,0);
-						n = 1;
 					}
-					//draw_tiles();
 				}
-				//draw_tiles();
+			}
+			for(j=3;j>0;j--)
+			{
+				if(get_tile(i,j) == get_tile(i,j-1) && get_tile(i,j) != 0) {
+					set_tile(i,j,get_tile(i,j-1)+1);
+					set_tile(i,j-1,get_tile(i,j-2));
+					set_tile(i,j-2,get_tile(i,j-3));
+					set_tile(i,j-3,0);
+				}
 			}
 		}
 	} else if(dir == 3)
 	{
-		for(k=0;k<4;k++)
+		for(j=0;j<4;j++)
 		{
-			for(j=0;j<4;j++)
+			for(i=0;i<4;i++)
 			{
-				for(i=0;i<4;i++)
+				for(k=0;k<4;k++)
 				{
 					if(get_tile(i,j) == 0)
 					{
@@ -253,25 +272,26 @@ void move_tiles(byte dir)
 						set_tile(i+1,j,get_tile(i+2,j));
 						set_tile(i+2,j,get_tile(i+3,j));
 						set_tile(i+3,j,0);
-					} else if(get_tile(i,j) == get_tile(i+1,j) && n == 0) {
-						set_tile(i,j,get_tile(i,j)+1);
-						set_tile(i+1,j,get_tile(i+2,j));
-						set_tile(i+2,j,get_tile(i+3,j));
-						set_tile(i+3,j,0);
-						n = 1;
 					}
-					//draw_tiles();
 				}
-				//draw_tiles();
+			}
+			for(i=0;i<4;i++)
+			{
+				if(get_tile(i,j) == get_tile(i+1,j) && get_tile(i,j) != 0) {
+					set_tile(i,j,get_tile(i+1,j)+1);
+					set_tile(i+1,j,get_tile(i+2,j));
+					set_tile(i+2,j,get_tile(i+3,j));
+					set_tile(i+3,j,0);
+				}
 			}
 		}
 	} else if(dir == 4)
 	{
-		for(k=0;k<4;k++)
+		for(j=0;j<4;j++)
 		{
-			for(j=0;j<4;j++)
+			for(i=3;i>0;i--)
 			{
-				for(i=3;i>0;i--)
+				for(k=0;k<4;k++)
 				{
 					if(get_tile(i,j) == 0)
 					{
@@ -279,72 +299,128 @@ void move_tiles(byte dir)
 						set_tile(i-1,j,get_tile(i-2,j));
 						set_tile(i-2,j,get_tile(i-3,j));
 						set_tile(i-3,j,0);
-					} else if(get_tile(i,j) == get_tile(i-1,j) && n == 0) {
-						set_tile(i,j,get_tile(i,j)+1);
-						set_tile(i-1,j,get_tile(i-2,j));
-						set_tile(i-2,j,get_tile(i-3,j));
-						set_tile(i-3,j,0);
-						n = 1;
 					}
-					//draw_tiles();
 				}
-				//draw_tiles();
+			}
+			for(i=3;i>0;i--)
+			{
+				if(get_tile(i,j) == get_tile(i-1,j) && get_tile(i,j) != 0) {
+					set_tile(i,j,get_tile(i-1,j)+1);
+					set_tile(i-1,j,get_tile(i-2,j));
+					set_tile(i-2,j,get_tile(i-3,j));
+					set_tile(i-3,j,0);
+				}
 			}
 		}
+	} else {
+		goto spawn;
 	}
-	end:
 	for(i=0;i<16;i++)
 	{
-		m = 0;
-		for(j=0;j<16;j++)
+		if(deref(0xE000+i) != deref(0xE0E0+i))
 		{
-			if(deref(0xE0E0+j) != deref(0xE000+j))
-			{
-				m = 1;
-			}
-		}
-		if(m == 0)
-		{
-			break;
-		}
-		if(deref(0xE000+i) == 0)
-		{
-			m = 1;
-			break;
-		} else {
-			m = 0;
+			goto spawn;
 		}
 	}
-	if(m == 1 || dir == 0)
+	goto end;
+	spawn:
+	while(1)
 	{
-		while(1)
+		for(i=0;i<4;i++)
 		{
-			for(i=0;i<4;i++)
+			for(j=0;j<4;j++)
 			{
-				for(j=0;j<4;j++)
+				if(get_tile(i,j) == 0)
 				{
-					if(get_tile(i,j) == 0)
+					if(get_random(15) == 1)
 					{
-						//deref(0xE0E0) = get_random(2);
-						if(get_random(2) == 1)
-						{
-							if(l < 1)
-							{
-								set_tile(i,j,get_random(3));
-								l++;
-							}
-						}
+						set_tile(i,j,get_random_tile());
+						goto end;
 					}
 				}
-			}
-			if(l >= 1)
-			{
-				break;
 			}
 		}
 	}
 
+	end:
 	draw_tiles();
+	check_moves();
+
+	//draw_tiles();
+}
+
+void check_moves()
+{
+	byte i = 0;
+	for(i=0;i<16;i++)
+	{
+		if(deref(0xE000+i) == 11)
+		{
+			win_screen();
+		}
+	}
+	for(i=0;i<16;i++)
+	{
+		if((deref(0xE000+i) == 0 || (deref(0xE000+i) == deref(0xE000+i+1)) || deref(0xE000+i) == deref(0xE000+i+4)))
+		{
+			return;
+		}
+	}
+	death_screen();
+}
+
+void render_dark(word addr)
+{
+    word i = 0;
+    word j = 0;
+    for(i = 0; i < 0x0600; i++)
+    {
+        j++;
+        if((j & 0x001F) == 0x18)
+        {
+            j+=8;
+        }
+        *((word *)(0x9800 + j)) = *((word *)(addr + i));
+    }
+}
+
+void render_light(word addr)
+{
+    word i = 0;
+    word j = 0;
+    for(i = 0; i < 0x0600; i++)
+    {
+        j++;
+        if((j & 0x001F) == 0x18)
+        {
+            j+=8;
+        }
+        *((word *)(0x9000 + j)) = *((word *)(addr + i));
+    }
+}
+
+void death_screen()
+{
+	delay(0x4001);
+	while(1)
+	{
+		render_dark(dlose);
+		render_light(llose);
+		render();
+
+	}
+}
+
+void win_screen()
+{
+	delay(0x4001);
+	while(1)
+	{
+		render_dark(dwin);
+		render_light(lwin);
+		render();
+
+	}
 }
 
 void main() {
